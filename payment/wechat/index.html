@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GEO MCP Server — 购买 License</title>
+<style>
+  :root { --bg: #0d1117; --card: #161b22; --border: #30363d; --text: #c9d1d9; --accent: #58a6ff; --green: #3fb950; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.6; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 40px 20px; }
+  .container { max-width: 720px; width: 100%; }
+  h1 { text-align: center; font-size: 28px; margin-bottom: 8px; }
+  .subtitle { text-align: center; color: #8b949e; margin-bottom: 40px; font-size: 14px; }
+  .plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px; }
+  .plan { background: var(--card); border: 2px solid var(--border); border-radius: 12px; padding: 24px; text-align: center; cursor: pointer; transition: all .2s; position: relative; }
+  .plan:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .plan.selected { border-color: var(--green); background: #1a2332; }
+  .plan.popular { border-color: var(--accent); }
+  .plan .badge { position: absolute; top: -12px; right: 12px; background: var(--accent); color: #fff; font-size: 11px; padding: 2px 10px; border-radius: 10px; }
+  .plan h3 { font-size: 18px; margin-bottom: 8px; }
+  .plan .price { font-size: 32px; font-weight: 700; margin: 12px 0; }
+  .plan .period { font-size: 13px; color: #8b949e; }
+  .plan ul { list-style: none; text-align: left; margin: 16px 0; font-size: 13px; }
+  .plan ul li { padding: 4px 0; }
+  .plan ul li::before { content: '✓ '; color: var(--green); }
+  .checkout { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 32px; text-align: center; display: none; }
+  .checkout.active { display: block; }
+  .qr-box { background: #fff; display: inline-block; padding: 16px; border-radius: 8px; margin: 16px 0; }
+  .qr-box canvas { display: block; }
+  .amount { font-size: 36px; font-weight: 700; color: var(--green); margin: 8px 0; }
+  .key-box { background: #0d2818; border: 1px solid var(--green); border-radius: 8px; padding: 16px; margin-top: 16px; font-family: monospace; font-size: 14px; word-break: break-all; display: none; }
+  .key-box.show { display: block; }
+  .note { font-size: 12px; color: #8b949e; margin-top: 24px; text-align: center; }
+  button { background: var(--green); color: #fff; border: none; padding: 12px 32px; border-radius: 8px; font-size: 16px; cursor: pointer; font-weight: 600; }
+  button:hover { opacity: 0.9; }
+  .email-input { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 10px 16px; border-radius: 8px; width: 100%; max-width: 300px; font-size: 14px; margin: 8px 0; }
+  .tabs { display: flex; gap: 8px; justify-content: center; margin-bottom: 24px; }
+  .tab { padding: 8px 20px; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--text); cursor: pointer; font-size: 14px; }
+  .tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .x402-info { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 16px; text-align: left; font-size: 13px; margin: 12px 0; }
+  .x402-info code { background: #0d1117; padding: 2px 6px; border-radius: 4px; font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🌐 GEO MCP Server</h1>
+  <p class="subtitle">生成式引擎优化 — 检测品牌在 AI 中的引用 · 评分内容 · 分析竞品</p>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('wechat')">🇨🇳 微信支付</button>
+    <button class="tab" onclick="switchTab('x402')">🌍 USDC (x402)</button>
+  </div>
+
+  <div class="plans" id="plans">
+    <div class="plan" onclick="selectPlan('pro')">
+      <h3>🔧 Pro</h3>
+      <div class="price">¥149<span class="period">/年</span></div>
+      <ul>
+        <li>每日 10,000 次查询</li>
+        <li>6 个工具全部解锁</li>
+        <li>竞品分析 (10个)</li>
+        <li>品牌趋势追踪</li>
+        <li>全引擎检测</li>
+      </ul>
+    </div>
+    <div class="plan popular selected" onclick="selectPlan('team')">
+      <span class="badge">推荐</span>
+      <h3>👥 Team</h3>
+      <div class="price">¥399<span class="period">/年</span></div>
+      <ul>
+        <li>Pro 全部功能</li>
+        <li>5 个席位</li>
+        <li>竞品分析 (50个)</li>
+        <li>优先支持</li>
+      </ul>
+    </div>
+    <div class="plan" onclick="selectPlan('enterprise')">
+      <h3>🏢 企业</h3>
+      <div class="price">定制</div>
+      <ul>
+        <li>无限查询</li>
+        <li>私有部署</li>
+        <li>专属支持</li>
+        <li>API 接入</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="checkout active" id="checkout-wechat">
+    <h2 id="checkout-title">Team — ¥399/年</h2>
+    <div class="amount" id="amount">¥399</div>
+    <div class="qr-box">
+      <canvas id="qr-canvas" width="200" height="200"></canvas>
+    </div>
+    <p style="font-size:13px;color:#8b949e;">微信扫码支付</p>
+    <p style="font-size:12px;color:#8b949e;">支付后 License Key 自动显示，同时发送到邮箱</p>
+    <input type="email" class="email-input" id="email" placeholder="你的邮箱（接收 License Key）">
+    <br><br>
+    <button onclick="simulatePayment()">💰 已完成支付</button>
+    <div class="key-box" id="key-box">
+      <p style="color:#3fb950;margin-bottom:8px;">✅ 你的 License Key:</p>
+      <code id="license-key" style="font-size:14px;"></code>
+      <p style="margin-top:8px;font-size:12px;color:#8b949e;">在 Claude Desktop 配置中设置环境变量:<br><code>GEO_LICENSE_KEY=你的key</code></p>
+    </div>
+  </div>
+
+  <div class="checkout" id="checkout-x402">
+    <h2 id="x402-title">Pro — $19 USDC</h2>
+    <div class="x402-info">
+      <p>📡 <strong>x402 链上支付 (Base)</strong></p>
+      <p>发送 <code id="x402-amount">19 USDC</code> 到:</p>
+      <p style="word-break:break-all;font-size:12px;margin:8px 0;"><code id="x402-wallet">0x... (设置 X402_WALLET 环境变量)</code></p>
+      <p style="font-size:12px;color:#8b949e;">USDC 合约: 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913</p>
+    </div>
+    <input type="email" class="email-input" id="x402-email" placeholder="你的邮箱（接收 License Key）">
+    <br><br>
+    <button onclick="verifyX402()">🔍 验证支付（自动签发 License）</button>
+    <div class="key-box" id="x402-key-box">
+      <p style="color:#3fb950;margin-bottom:8px;">✅ 你的 License Key:</p>
+      <code id="x402-license-key" style="font-size:14px;"></code>
+    </div>
+  </div>
+
+  <p class="note">
+    📧 有问题？发邮件到 admin@reedsail.com<br>
+    📦 <a href="https://pypi.org/project/geo-mcp-optimizer/" style="color:var(--accent);">PyPI</a> ·
+    <a href="https://github.com/chenzhi1985/geo-mcp-server" style="color:var(--accent);">GitHub</a>
+  </p>
+</div>
+
+<script>
+let selectedTier = 'team';
+let selectedCurrency = 'wechat';
+
+const prices = {
+  pro: { cny: 149, usd: 19 },
+  team: { cny: 399, usd: 49 },
+  enterprise: { cny: '定制', usd: 'Custom' },
+};
+
+function selectPlan(tier) {
+  selectedTier = tier;
+  document.querySelectorAll('.plan').forEach(p => p.classList.remove('selected'));
+  document.querySelectorAll('.plan').forEach(p => {
+    if (p.querySelector('h3').textContent.toLowerCase().includes(tier) ||
+        (tier === 'enterprise' && p.querySelector('h3').textContent.includes('企业'))) {
+      p.classList.add('selected');
+    }
+  });
+  updateCheckout();
+}
+
+function switchTab(currency) {
+  selectedCurrency = currency;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => {
+    if (t.textContent.includes(currency === 'wechat' ? '微信' : 'USDC')) t.classList.add('active');
+  });
+  document.getElementById('checkout-wechat').classList.toggle('active', currency === 'wechat');
+  document.getElementById('checkout-x402').classList.toggle('active', currency === 'x402');
+  updateCheckout();
+}
+
+function updateCheckout() {
+  const p = prices[selectedTier];
+  if (selectedCurrency === 'wechat') {
+    document.getElementById('checkout-title').textContent = `${selectedTier.toUpperCase()} — ¥${p.cny}/年`;
+    document.getElementById('amount').textContent = `¥${p.cny}`;
+  } else {
+    document.getElementById('x402-title').textContent = `${selectedTier.toUpperCase()} — $${p.usd} USDC`;
+    document.getElementById('x402-amount').textContent = `${p.usd} USDC`;
+  }
+}
+
+// 生成模拟二维码
+function drawQR() {
+  const canvas = document.getElementById('qr-canvas');
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, 200, 200);
+  // 简单二维码占位图案
+  ctx.fillStyle = '#000';
+  for (let x = 20; x < 180; x += 12) {
+    for (let y = 20; y < 180; y += 12) {
+      if (Math.random() > 0.5) ctx.fillRect(x, y, 8, 8);
+    }
+  }
+  // 中间 logo
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(80, 80, 40, 40);
+  ctx.fillStyle = '#3fb950';
+  ctx.font = '20px sans-serif';
+  ctx.fillText('¥', 92, 108);
+}
+drawQR();
+updateCheckout();
+
+function simulatePayment() {
+  const email = document.getElementById('email').value.trim();
+  const tier = selectedTier;
+  // 模拟生成 license key
+  const mockKey = 'GEO-' + tier.toUpperCase() + '-' +
+    Array.from({length: 16}, () => Math.random().toString(36)[2]).join('') + '-' +
+    Array.from({length: 8}, () => Math.random().toString(36)[2]).join('');
+
+  document.getElementById('license-key').textContent = mockKey;
+  document.getElementById('key-box').classList.add('show');
+
+  // 实际部署时，这里会调用后端 API 生成真实 key
+  if (email) {
+    console.log('Will send key to:', email);
+  }
+}
+
+function verifyX402() {
+  const email = document.getElementById('x402-email').value.trim();
+  // 实际部署时调用 /api/x402/verify
+  const mockKey = 'GEO-' + selectedTier.toUpperCase() + '-' +
+    Array.from({length: 16}, () => Math.random().toString(36)[2]).join('') + '-' +
+    Array.from({length: 8}, () => Math.random().toString(36)[2]).join('');
+  document.getElementById('x402-license-key').textContent = mockKey;
+  document.getElementById('x402-key-box').classList.add('show');
+}
+</script>
+</body>
+</html>

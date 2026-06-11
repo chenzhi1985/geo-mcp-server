@@ -23,12 +23,48 @@ GEO MCP Server — Generative Engine Optimization
     }
 """
 
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 from mcp.server.fastmcp import FastMCP
 
 from src.tools.citation import check_citation, analyze_ai_visibility
 from src.tools.scorer import score_content
 from src.tools.competitor import competitor_gap
 from src.tools.monitor import track_brand, get_trend
+
+# ── License & Tier ────────────────────────────────────────────
+
+from payment.license import verify_key, check_quota, record_usage, TIERS
+
+LICENSE_KEY = os.environ.get("GEO_LICENSE_KEY", "")
+CURRENT_TIER = verify_key(LICENSE_KEY) if LICENSE_KEY else TIERS["free"]
+if LICENSE_KEY and not CURRENT_TIER:
+    print(f"⚠️  Invalid or expired license key. Falling back to Free tier.")
+    CURRENT_TIER = TIERS["free"]
+
+if CURRENT_TIER == TIERS["free"]:
+    print(f"🆓 GEO MCP Server — Free Tier ({TIERS['free']['daily_queries']} queries/day)")
+else:
+    print(f"🔑 GEO MCP Server — {CURRENT_TIER['name']} Tier")
+
+
+def _check_access(user_hint: str = "user") -> dict:
+    """检查当前用户的访问权限"""
+    quota = check_quota(user_hint, CURRENT_TIER)
+    if not quota["allowed"]:
+        return {
+            "error": "daily_limit_reached",
+            "message": f"Daily query limit reached ({quota['used_today']}/{quota['limit']}). "
+                       f"Upgrade at https://www.reedsail.com/geo-pro/",
+            "tier": CURRENT_TIER["name"],
+            "upgrade_url": "https://www.reedsail.com/geo-pro/",
+        }
+    record_usage(user_hint)
+    return {"allowed": True, "tier": CURRENT_TIER["name"], **quota}
+
 
 # ── Server 初始化 ─────────────────────────────────────────────
 
@@ -179,6 +215,28 @@ def geo_ai_visibility(
     """
     url_list = [u.strip() for u in urls.split(",") if u.strip()]
     return analyze_ai_visibility(brand=brand, content_urls=url_list)
+
+
+@mcp.tool()
+def geo_license_status() -> dict:
+    """
+    查询当前 License 状态。
+
+    显示当前 tier 等级、剩余配额、到期时间。
+
+    使用场景：
+    - "我的 License 还有多久到期？"
+    - "今天还剩多少次查询？"
+    """
+    quota = check_quota("current", CURRENT_TIER)
+    return {
+        "tier": CURRENT_TIER["name"],
+        "daily_queries": CURRENT_TIER.get("daily_queries", 0),
+        "used_today": quota["used_today"],
+        "remaining_today": quota["remaining"],
+        "license_key": LICENSE_KEY[:12] + "..." if LICENSE_KEY else "未设置",
+        "upgrade_url": "https://www.reedsail.com/geo-pro/" if CURRENT_TIER["name"] == "Free" else None,
+    }
 
 
 # ── 资源定义 ──────────────────────────────────────────────────
