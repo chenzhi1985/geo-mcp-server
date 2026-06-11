@@ -1,0 +1,16 @@
+[Unit]
+Description=GEO MCP Server — Payment API
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/var/www/geo-pro
+ExecStart=python3 -m uvicorn payment.api:app --host 127.0.0.1 --port 8899
+Restart=always
+RestartSec=5
+Environment=GEO_LICENSE_FILE=/var/lib/geo-mcp/licenses.json
+Environment=GEO_ORDERS_FILE=/var/lib/geo-mcp/orders.json
+
+[Install]
+WantedBy=multi-user.target
