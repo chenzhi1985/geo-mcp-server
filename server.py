@@ -323,14 +323,17 @@ def geo_strategy() -> str:
 
 # ── 入口 ──────────────────────────────────────────────────────
 
-if __name__ == "__main__":
+def main():
+    """CLI 入口点"""
     import sys
-    # 支持 stdio 模式（Claude Desktop）和 SSE 模式（调试）
     transport = "stdio"
     if "--sse" in sys.argv:
         transport = "sse"
     elif "--dev" in sys.argv:
-        # MCP Inspector 模式
         print("🔍 启动 GEO MCP Server (dev mode)...")
         print("   在另一个终端运行: npx @modelcontextprotocol/inspector")
     mcp.run(transport=transport)
+
+
+if __name__ == "__main__":
+    main()

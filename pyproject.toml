@@ -7,7 +7,8 @@ name = "geo-mcp-server"
 version = "1.0.0"
 description = "生成式引擎优化(GEO) MCP Server — 检测品牌在AI引擎中的引用、评分内容GEO优化程度、分析竞品差距"
 readme = "README.md"
-license = {text = "MIT"}
+license = "MIT"
+license-files = ["LICENSE"]
 requires-python = ">=3.12"
 authors = [
     {name = "chenzhi1985", email = "228397321+chenzhi1985@users.noreply.github.com"},
@@ -16,7 +17,6 @@ keywords = ["mcp", "geo", "seo", "ai", "generative-engine-optimization", "claude
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -40,5 +40,8 @@ Issues = "https://github.com/chenzhi1985/geo-mcp-server/issues"
 [project.scripts]
 geo-mcp-server = "server:main"
 
+[tool.setuptools]
+py-modules = ["server"]
+
 [tool.setuptools.packages.find]
-include = ["src*", "server*"]
+include = ["src*"]
