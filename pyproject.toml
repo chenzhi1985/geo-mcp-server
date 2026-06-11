@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=75", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "geo-mcp-server"
+version = "1.0.0"
+description = "生成式引擎优化(GEO) MCP Server — 检测品牌在AI引擎中的引用、评分内容GEO优化程度、分析竞品差距"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.12"
+authors = [
+    {name = "chenzhi1985", email = "228397321+chenzhi1985@users.noreply.github.com"},
+]
+keywords = ["mcp", "geo", "seo", "ai", "generative-engine-optimization", "claude", "claude-code"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Internet :: WWW/HTTP :: Indexing/Search",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "mcp>=1.20.0",
+    "httpx>=0.28.0",
+    "beautifulsoup4>=4.14.0",
+    "lxml>=6.0.0",
+    "pydantic>=2.12.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/chenzhi1985/geo-mcp-server"
+Repository = "https://github.com/chenzhi1985/geo-mcp-server"
+Issues = "https://github.com/chenzhi1985/geo-mcp-server/issues"
+
+[project.scripts]
+geo-mcp-server = "server:main"
+
+[tool.setuptools.packages.find]
+include = ["src*", "server*"]

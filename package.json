@@ -1,0 +1,37 @@
+{
+  "name": "geo-mcp-server",
+  "version": "1.0.0",
+  "description": "GEO (Generative Engine Optimization) MCP Server — Track brand AI citation presence, score content GEO fitness, analyze competitor gaps",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "geo",
+    "generative-engine-optimization",
+    "seo",
+    "ai-citation",
+    "claude",
+    "claude-code",
+    "cursor",
+    "windsurf"
+  ],
+  "author": "chenzhi1985",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chenzhi1985/geo-mcp-server"
+  },
+  "mcp": {
+    "server": {
+      "command": "python",
+      "args": ["-m", "geo_mcp_server"],
+      "env": {}
+    }
+  },
+  "files": [
+    "server.py",
+    "src/",
+    "README.md",
+    "LICENSE",
+    "requirements.txt"
+  ]
+}

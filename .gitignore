@@ -1,0 +1,10 @@
+# GEO MCP Server - Generative Engine Optimization
+__pycache__/
+*.pyc
+*.pyo
+monitor_data/
+.env
+.venv/
+dist/
+*.egg-info/
+build/
