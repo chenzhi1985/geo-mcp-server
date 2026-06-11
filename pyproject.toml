@@ -3,7 +3,7 @@ requires = ["setuptools>=75", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "geo-mcp-server"
+name = "geo-mcp-optimizer"
 version = "1.0.0"
 description = "生成式引擎优化(GEO) MCP Server — 检测品牌在AI引擎中的引用、评分内容GEO优化程度、分析竞品差距"
 readme = "README.md"

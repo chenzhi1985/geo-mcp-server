@@ -1,6 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/modelcontextprotocol/registry/main/schema.json",
-  "name": "geo-mcp-server",
+  "name": "geo-mcp-optimizer",
   "displayName": "GEO Optimizer",
   "description": "生成式引擎优化工具 — 检测品牌在 ChatGPT/Claude/Gemini/Perplexity 中的引用存在、评分网页内容GEO优化程度（5维度）、竞品AI引用对比分析、品牌引用趋势追踪",
   "longDescription": "GEO (Generative Engine Optimization) MCP Server 提供6个专业工具：\n\n1. geo_check_citation — 检测品牌在4大AI引擎中的引用情况\n2. geo_content_score — 5维度GEO内容评分 (Entity Clarity / Citation Worthiness / Content Structure / Freshness / Authority)\n3. geo_competitor_gap — 竞品AI引用差距分析矩阵\n4. geo_brand_monitor — 品牌引用趋势追踪\n5. geo_brand_trend — 历史趋势查询\n6. geo_ai_visibility — 综合AI可见度报告\n\n适用于内容营销团队、SEO专家、品牌经理，以及任何想在AI时代提升品牌可见度的用户。",
