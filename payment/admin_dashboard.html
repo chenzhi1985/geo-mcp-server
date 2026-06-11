@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>GEO MCP — 订单管理</title>
+<style>
+:root { --bg:#0d1117; --card:#161b22; --border:#30363d; --text:#c9d1d9; --green:#3fb950; --yellow:#d29922; --red:#f85149; --blue:#58a6ff; }
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:20px}
+h1{font-size:22px;margin-bottom:4px}
+.sub{color:#8b949e;font-size:13px;margin-bottom:24px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:24px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:16px;text-align:center}
+.stat .num{font-size:28px;font-weight:700}
+.stat .label{font-size:12px;color:#8b949e;margin-top:4px}
+.stat.pending .num{color:var(--yellow)}
+.stat.paid .num{color:var(--blue)}
+.stat.done .num{color:var(--green)}
+table{width:100%;border-collapse:collapse;background:var(--card);border-radius:8px;overflow:hidden}
+th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);font-size:13px}
+th{background:#1c2129;color:#8b949e;font-weight:500}
+tr:hover{background:#1c2129}
+.status{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+.status.pending{background:#3d2911;color:var(--yellow)}
+.status.paid{background:#0d2137;color:var(--blue)}
+.status.issued{background:#0d2818;color:var(--green)}
+button{padding:6px 14px;border-radius:6px;border:none;font-size:12px;cursor:pointer;font-weight:600}
+.btn-pay{background:var(--blue);color:#fff}
+.btn-key{background:var(--green);color:#fff}
+.btn-refresh{background:var(--border);color:var(--text);padding:8px 20px;font-size:14px}
+.action-bar{display:flex;gap:8px;align-items:center;margin-bottom:16px}
+.empty{text-align:center;padding:40px;color:#8b949e}
+input{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:4px;font-size:13px;width:100%}
+.key-cell{font-family:monospace;font-size:11px}
+.tabs{display:flex;gap:8px;margin-bottom:16px}
+.tab{padding:8px 16px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text);cursor:pointer;font-size:13px}
+.tab.active{background:var(--blue);border-color:var(--blue);color:#fff}
+</style>
+</head>
+<body>
+<h1>📋 GEO MCP — 订单管理</h1>
+<p class="sub">管理面板 — 请勿公开访问</p>
+
+<div class="stats" id="stats"></div>
+
+<div class="tabs">
+  <button class="tab active" onclick="showTab('pending')">🟡 待确认</button>
+  <button class="tab" onclick="showTab('paid')">🔵 已支付</button>
+  <button class="tab" onclick="showTab('issued')">🟢 已签发</button>
+  <button class="tab" onclick="showTab('all')">📋 全部</button>
+</div>
+
+<div class="action-bar">
+  <button class="btn-refresh" onclick="loadAll()">🔄 刷新</button>
+  <span style="font-size:12px;color:#8b949e;" id="last-update"></span>
+</div>
+
+<div id="table-container"></div>
+
+<script>
+const API = '/api/admin';
+
+async function loadStats() {
+  try {
+    const r = await fetch(`${API}/stats`);
+    const d = await r.json();
+    document.getElementById('stats').innerHTML = `
+      <div class="stat pending"><div class="num">${d.pending}</div><div class="label">待确认</div></div>
+      <div class="stat paid"><div class="num">${d.paid_awaiting_key}</div><div class="label">已支付待签发</div></div>
+      <div class="stat done"><div class="num">${d.key_issued}</div><div class="label">已签发</div></div>
+      <div class="stat"><div class="num">¥${d.revenue_cny.toLocaleString()}</div><div class="label">已确认收入</div></div>
+      <div class="stat"><div class="num">${d.total_orders}</div><div class="label">总订单</div></div>
+    `;
+  } catch(e) { document.getElementById('stats').innerHTML = '<div class="stat"><div class="num">--</div><div class="label">API 未连接</div></div>'; }
+}
+
+let currentTab = 'pending';
+function showTab(t) { currentTab = t; document.querySelectorAll('.tab').forEach(el=>el.classList.toggle('active',el.textContent.includes(t==='pending'?'待确认':t==='paid'?'已支付':t==='issued'?'已签发':'全部'))); loadTable(); }
+
+async function loadTable() {
+  const container = document.getElementById('table-container');
+  try {
+    const r = await fetch(`${API}/orders?filter=${currentTab}`);
+    const orders = await r.json();
+    if (!orders.length) { container.innerHTML = '<div class="empty">✅ 没有订单</div>'; return; }
+
+    let html = '<table><tr><th>订单 ID</th><th>时间</th><th>Tier</th><th>金额</th><th>支付方式</th><th>邮箱</th><th>状态</th><th>License Key</th><th>操作</th></tr>';
+    for (const o of orders) {
+      const sc = o.status === 'pending' ? 'pending' : o.status === 'paid' ? 'paid' : 'issued';
+      const sl = o.status === 'pending' ? '待确认' : o.status === 'paid' ? '已支付' : '已签发';
+      const time = (o.created_at||'').replace('T',' ').substring(0,19);
+      const key = o.license_key ? `<span class="key-cell">${o.license_key.substring(0,20)}...</span>` : '—';
+      const actions = o.status === 'pending'
+        ? `<button class="btn-pay" onclick="confirmPay('${o.order_id}')">✅ 确认收款</button>`
+        : o.status === 'paid'
+        ? `<input id="key-${o.order_id}" placeholder="粘贴 Key" style="width:180px;display:inline"><br><button class="btn-key" style="margin-top:4px" onclick="issueKey('${o.order_id}')">🔑 签发</button>`
+        : '✅ 完成';
+      html += `<tr><td style="font-family:monospace;font-size:11px">${o.order_id}</td><td>${time}</td><td>${o.tier.toUpperCase()}</td><td>¥${o.amount_cny || 0}</td><td>${o.payment_method==='wechat'?'🇨🇳 微信':'🌍 x402'}</td><td>${o.email||'—'}</td><td><span class="status ${sc}">${sl}</span></td><td>${key}</td><td>${actions}</td></tr>`;
+    }
+    html += '</table>';
+    container.innerHTML = html;
+  } catch(e) { container.innerHTML = `<div class="empty">⚠️ 加载失败 — ${e.message}</div>`; }
+}
+
+async function confirmPay(orderId) {
+  if (!confirm('确认已收到该笔付款？')) return;
+  try {
+    await fetch(`${API}/orders/${orderId}/paid`, { method: 'POST' });
+    loadAll();
+  } catch(e) { alert('操作失败: ' + e.message); }
+}
+
+async function issueKey(orderId) {
+  const keyInput = document.getElementById('key-' + orderId);
+  const key = keyInput ? keyInput.value.trim() : '';
+  if (!key) { alert('请粘贴 License Key'); return; }
+  if (!key.startsWith('GEO-')) { alert('Key 格式无效，应以 GEO- 开头'); return; }
+  try {
+    await fetch(`${API}/orders/${orderId}/issue`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({license_key: key}),
+    });
+    loadAll();
+  } catch(e) { alert('操作失败: ' + e.message); }
+}
+
+function loadAll() {
+  loadStats();
+  loadTable();
+  document.getElementById('last-update').textContent = '更新于 ' + new Date().toLocaleTimeString();
+}
+
+loadAll();
+setInterval(loadAll, 30000);
+</script>
+</body>
+</html>

@@ -65,28 +65,13 @@ async def create_wechat_order(req: PurchaseRequest):
     if isinstance(price, str):
         raise HTTPException(400, "Enterprise tier requires custom pricing")
 
-    order_id = f"GEO-{req.tier.upper()}-{int(time.time())}"
-    _pending_orders[order_id] = {
-        "tier": req.tier,
-        "email": req.email,
-        "price_cny": price,
-        "status": "pending",
-        "created_at": datetime.now().isoformat(),
-    }
+    order = create_order(req.tier, req.email, "wechat")
 
     return {
-        "order_id": order_id,
+        "order_id": order["order_id"],
         "tier": req.tier,
         "price_cny": price,
         "status": "pending",
-        # 实际部署: 返回微信支付预支付订单参数
-        "wechat_params": {
-            "appId": os.environ.get("WECHAT_APP_ID", ""),
-            "timeStamp": str(int(time.time())),
-            "nonceStr": hashlib.md5(str(time.time()).encode()).hexdigest()[:16],
-            "package": f"prepay_id={order_id}",
-            "signType": "MD5",
-        },
     }
 
 
@@ -132,6 +117,60 @@ async def verify_x402_payment(payment_id: str):
     user_id = "anonymous"
     result = process_payment(payment_id, tier, user_id)
     return result
+
+
+# ── 管理员 API ────────────────────────────────────────────────
+from .orders import (
+    create_order, mark_paid, issue_key, get_pending,
+    get_paid_awaiting_key, get_all, get_stats,
+)
+from .license import generate_key as _gen_key, register_key as _reg_key
+
+
+@app.get("/api/admin/orders")
+async def admin_orders(filter: str = "pending"):
+    """获取订单列表 (filter: pending | paid | issued | all)"""
+    if filter == "pending":
+        return get_pending()
+    elif filter == "paid":
+        return get_paid_awaiting_key()
+    elif filter == "issued":
+        return [o for o in get_all() if o["status"] == "key_issued"]
+    return get_all()
+
+
+@app.get("/api/admin/stats")
+async def admin_stats():
+    """订单统计"""
+    return get_stats()
+
+
+@app.post("/api/admin/orders/{order_id}/paid")
+async def admin_mark_paid(order_id: str):
+    """标记订单已支付"""
+    result = mark_paid(order_id)
+    if not result:
+        raise HTTPException(404, "Order not found")
+    return result
+
+
+@app.post("/api/admin/orders/{order_id}/issue")
+async def admin_issue_key(order_id: str, req: dict):
+    """签发 License Key"""
+    key = req.get("license_key", "")
+    if not key:
+        # 自动生成 Key
+        orders = get_all()
+        order = next((o for o in orders if o["order_id"] == order_id), None)
+        if not order:
+            raise HTTPException(404, "Order not found")
+        key = _gen_key(order["tier"], order["email"] or order_id)
+        _reg_key(key, order["tier"], order["email"] or order_id)
+
+    result = issue_key(order_id, key)
+    if not result:
+        raise HTTPException(404, "Order not found")
+    return {"success": True, "order_id": order_id, "license_key": key}
 
 
 # ── License 查询 ──────────────────────────────────────────────

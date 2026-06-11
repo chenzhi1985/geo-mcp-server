@@ -20,7 +20,7 @@ from typing import Optional, Any
 
 # ── 配置 ──────────────────────────────────────────────────────
 LICENSE_SECRET = os.environ.get("GEO_LICENSE_SECRET", "geo-mcp-change-me-in-production")
-LICENSE_FILE = os.path.join(os.path.dirname(__file__), "..", "licenses.json")
+LICENSE_FILE = os.environ.get("GEO_LICENSE_FILE", "/var/lib/geo-mcp/licenses.json")
 
 # 三级定价
 TIERS = {
