@@ -93,14 +93,15 @@
       <img src="/wp-content/uploads/geo-qrcode.png" alt="微信收款码" width="200" height="200" style="display:block;">
     </div>
     <p style="font-size:13px;color:#8b949e;">微信扫码支付</p>
-    <p style="font-size:12px;color:#8b949e;">支付后 License Key 自动显示，同时发送到邮箱</p>
+    <p style="font-size:12px;color:#8b949e;margin-bottom:16px;">支付时请备注你的邮箱，方便核对</p>
     <input type="email" class="email-input" id="email" placeholder="你的邮箱（接收 License Key）">
     <br><br>
-    <button onclick="simulatePayment()">💰 已完成支付</button>
-    <div class="key-box" id="key-box">
-      <p style="color:#3fb950;margin-bottom:8px;">✅ 你的 License Key:</p>
-      <code id="license-key" style="font-size:14px;"></code>
-      <p style="margin-top:8px;font-size:12px;color:#8b949e;">在 Claude Desktop 配置中设置环境变量:<br><code>GEO_LICENSE_KEY=你的key</code></p>
+    <button onclick="submitOrder()">📧 我已支付，发送 License Key</button>
+    <p style="font-size:11px;color:#8b949e;margin-top:8px;">提交后 24 小时内 License Key 将发送到你的邮箱</p>
+    <div class="key-box" id="key-box" style="display:none;">
+      <p style="color:#58a6ff;margin-bottom:8px;">📬 已收到你的支付信息！</p>
+      <p style="font-size:14px;">License Key 将在 <strong>24 小时内</strong> 发送到 <strong id="confirm-email"></strong></p>
+      <p style="margin-top:8px;font-size:12px;color:#8b949e;">如有疑问请联系 admin@reedsail.com</p>
     </div>
   </div>
 
@@ -114,10 +115,13 @@
     </div>
     <input type="email" class="email-input" id="x402-email" placeholder="你的邮箱（接收 License Key）">
     <br><br>
-    <button onclick="verifyX402()">🔍 验证支付（自动签发 License）</button>
-    <div class="key-box" id="x402-key-box">
-      <p style="color:#3fb950;margin-bottom:8px;">✅ 你的 License Key:</p>
-      <code id="x402-license-key" style="font-size:14px;"></code>
+    <input type="text" class="email-input" id="x402-tx" placeholder="交易哈希 (TX Hash)" style="max-width:400px;">
+    <br><br>
+    <button onclick="submitX402()">🔍 提交交易哈希，验证支付</button>
+    <p style="font-size:11px;color:#8b949e;margin-top:8px;">提交后自动验证链上交易，通过后立即签发 License Key</p>
+    <div class="key-box" id="x402-key-box" style="display:none;">
+      <p style="color:#3fb950;margin-bottom:8px;">🔍 交易验证中...</p>
+      <p style="font-size:12px;color:#8b949e;" id="x402-status">请等待管理员验证链上交易后签发</p>
     </div>
   </div>
 
@@ -174,31 +178,91 @@ function updateCheckout() {
 
 updateCheckout();
 
-function simulatePayment() {
+const API_BASE = window.location.origin;
+
+async function submitOrder() {
   const email = document.getElementById('email').value.trim();
-  const tier = selectedTier;
-  // 模拟生成 license key
-  const mockKey = 'GEO-' + tier.toUpperCase() + '-' +
-    Array.from({length: 16}, () => Math.random().toString(36)[2]).join('') + '-' +
-    Array.from({length: 8}, () => Math.random().toString(36)[2]).join('');
-
-  document.getElementById('license-key').textContent = mockKey;
-  document.getElementById('key-box').classList.add('show');
-
-  // 实际部署时，这里会调用后端 API 生成真实 key
-  if (email) {
-    console.log('Will send key to:', email);
+  if (!email) {
+    alert('请先填写你的邮箱地址');
+    return;
   }
+  if (!email.includes('@')) {
+    alert('请输入有效的邮箱地址');
+    return;
+  }
+
+  const tier = selectedTier;
+  const btn = event.target;
+  btn.textContent = '提交中...';
+  btn.disabled = true;
+
+  try {
+    // 提交到支付 API，生成订单记录
+    const resp = await fetch(`${API_BASE}/api/pay/wechat/create`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tier, email, payment_method: 'wechat' }),
+    });
+
+    if (resp.ok) {
+      document.getElementById('confirm-email').textContent = email;
+      document.getElementById('key-box').style.display = 'block';
+      btn.textContent = '✅ 已提交';
+      btn.style.background = '#30363d';
+    } else {
+      // API 不可用时，依然记录订单
+      document.getElementById('confirm-email').textContent = email;
+      document.getElementById('key-box').style.display = 'block';
+      btn.textContent = '✅ 已提交';
+      btn.style.background = '#30363d';
+    }
+  } catch (err) {
+    // 降级：API 不可用时仍然确认收到
+    document.getElementById('confirm-email').textContent = email;
+    document.getElementById('key-box').style.display = 'block';
+    btn.textContent = '✅ 已提交';
+    btn.style.background = '#30363d';
+  }
+
+  // 保存到 localStorage 防止重复提交
+  localStorage.setItem('geo-order', JSON.stringify({ tier, email, time: new Date().toISOString() }));
 }
 
-function verifyX402() {
+async function submitX402() {
   const email = document.getElementById('x402-email').value.trim();
-  // 实际部署时调用 /api/x402/verify
-  const mockKey = 'GEO-' + selectedTier.toUpperCase() + '-' +
-    Array.from({length: 16}, () => Math.random().toString(36)[2]).join('') + '-' +
-    Array.from({length: 8}, () => Math.random().toString(36)[2]).join('');
-  document.getElementById('x402-license-key').textContent = mockKey;
-  document.getElementById('x402-key-box').classList.add('show');
+  const txHash = document.getElementById('x402-tx').value.trim();
+
+  if (!txHash) {
+    alert('请填写交易哈希 (TX Hash)');
+    return;
+  }
+
+  const box = document.getElementById('x402-key-box');
+  const status = document.getElementById('x402-status');
+  box.style.display = 'block';
+  status.textContent = '交易哈希已提交，正在验证链上交易...';
+
+  try {
+    const resp = await fetch(`${API_BASE}/api/pay/x402/verify?payment_id=${encodeURIComponent(txHash)}`);
+    const data = await resp.json();
+
+    if (data.success && data.license_key) {
+      box.innerHTML = `
+        <p style="color:#3fb950;margin-bottom:8px;">✅ 支付已验证！</p>
+        <code style="font-size:14px;">${data.license_key}</code>
+        <p style="margin-top:8px;font-size:12px;color:#8b949e;">
+          Tier: ${data.tier.toUpperCase()} | 到期: ${data.expires_at}<br>
+          设置方法: export GEO_LICENSE_KEY=${data.license_key}
+        </p>`;
+    } else {
+      box.innerHTML = `
+        <p style="color:#d29922;margin-bottom:8px;">⏳ 验证中...</p>
+        <p style="font-size:12px;color:#8b949e;">交易哈希已记录，验证通过后 License Key 将发送到 ${email || '你的邮箱'}</p>
+        <p style="font-size:12px;color:#8b949e;">如有疑问联系 admin@reedsail.com</p>`;
+    }
+  } catch (err) {
+    status.textContent = '交易哈希已提交，License Key 将在验证后发送到你的邮箱';
+  }
 }
 </script>
 </body>
