@@ -6,6 +6,19 @@
 
 ---
 
+## 🔗 快速链接
+
+| 入口 | 地址 |
+|------|------|
+| 📦 **下载安装** | `pip install geo-mcp-optimizer` |
+| 🛒 **购买 Pro** | [reedsail.com/geo-pro](https://www.reedsail.com/geo-pro/) |
+| 📊 **管理面板** | [reedsail.com/geo-pro/admin](https://www.reedsail.com/geo-pro/admin) |
+| 📖 **产品文档** | [reedsail.com/geo-pro/docs](https://www.reedsail.com/geo-pro/docs) |
+| 💻 **GitHub** | [github.com/chenzhi1985/geo-mcp-server](https://github.com/chenzhi1985/geo-mcp-server) |
+| 🐍 **PyPI** | [pypi.org/project/geo-mcp-optimizer](https://pypi.org/project/geo-mcp-optimizer/) |
+
+---
+
 ## 🎯 功能
 
 | 工具 | 功能 | 输入 |
