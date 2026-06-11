@@ -1,0 +1,28 @@
+# Smithery.ai Deployment Configuration
+# https://smithery.ai
+name: geo-mcp-optimizer
+description: GEO (Generative Engine Optimization) MCP Server — 检测品牌在AI引擎中的引用、评分内容GEO优化程度、分析竞品差距
+runtime: python
+entrypoint: server.py
+command: python server.py
+
+tools:
+  - name: geo_check_citation
+    description: 检测品牌在ChatGPT/Claude/Gemini/Perplexity中的引用存在情况
+  - name: geo_content_score
+    description: 对网页内容进行GEO评分(0-100分，5维度)
+  - name: geo_competitor_gap
+    description: 对比品牌与竞品在AI引擎中的引用差距
+  - name: geo_brand_monitor
+    description: 追踪品牌在AI生态中的引用变化趋势
+  - name: geo_brand_trend
+    description: 查看品牌的历史引用趋势
+  - name: geo_ai_visibility
+    description: 综合AI可见度报告
+
+resources:
+  - geo://best-practices
+  - geo://checklist
+
+repository: https://github.com/chenzhi1985/geo-mcp-server
+license: MIT
