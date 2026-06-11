@@ -1,14 +1,8 @@
 {
-  "GEO-PRO-154b008d5999b62f-17c3d1d1": {
+  "GEO-PRO-b1187e70f739a3e0-980fdfec": {
     "tier": "pro",
-    "user_id": "test-user",
-    "created_at": "2026-06-11T17:31:04.895775",
-    "expires_at": "2027-06-11T17:31:04.895724"
-  },
-  "GEO-PRO-3ca07848d8540e99-0a372923": {
-    "tier": "pro",
-    "user_id": "test-user",
-    "created_at": "2026-06-11T17:31:18.090389",
-    "expires_at": "2027-06-11T17:31:18.090223"
+    "user_id": "chenzhi1985",
+    "created_at": "2026-06-11T17:32:59.119634",
+    "expires_at": "2027-06-11T17:32:59.119483"
   }
 }
