@@ -1,0 +1,52 @@
+{
+  "$schema": "https://raw.githubusercontent.com/modelcontextprotocol/registry/main/schema.json",
+  "name": "geo-mcp-server",
+  "displayName": "GEO Optimizer",
+  "description": "生成式引擎优化工具 — 检测品牌在 ChatGPT/Claude/Gemini/Perplexity 中的引用存在、评分网页内容GEO优化程度（5维度）、竞品AI引用对比分析、品牌引用趋势追踪",
+  "longDescription": "GEO (Generative Engine Optimization) MCP Server 提供6个专业工具：\n\n1. geo_check_citation — 检测品牌在4大AI引擎中的引用情况\n2. geo_content_score — 5维度GEO内容评分 (Entity Clarity / Citation Worthiness / Content Structure / Freshness / Authority)\n3. geo_competitor_gap — 竞品AI引用差距分析矩阵\n4. geo_brand_monitor — 品牌引用趋势追踪\n5. geo_brand_trend — 历史趋势查询\n6. geo_ai_visibility — 综合AI可见度报告\n\n适用于内容营销团队、SEO专家、品牌经理，以及任何想在AI时代提升品牌可见度的用户。",
+  "vendor": "chenzhi1985",
+  "vendorUrl": "https://github.com/chenzhi1985",
+  "url": "https://github.com/chenzhi1985/geo-mcp-server",
+  "sourceUrl": "https://github.com/chenzhi1985/geo-mcp-server",
+  "license": "MIT",
+  "runtime": "python",
+  "type": "stdio",
+  "entrypoint": "d:/项目管理/MCP Server/geo-mcp-server/server.py",
+  "capabilities": ["tools", "resources", "prompts"],
+  "categories": ["SEO", "Marketing", "Analytics", "Content"],
+  "tags": ["geo", "seo", "ai-citation", "content-scoring", "generative-engine-optimization", "claude", "chatgpt", "gemini", "perplexity"],
+  "keywords": ["geo", "generative engine optimization", "ai visibility", "brand monitoring", "content scoring", "competitor analysis", "seo"],
+  "requirements": {
+    "python": ">=3.12"
+  },
+  "install": {
+    "pip": "pip install geo-mcp-server",
+    "source": "git clone https://github.com/chenzhi1985/geo-mcp-server.git && cd geo-mcp-server && pip install -r requirements.txt"
+  },
+  "config": {
+    "claude_desktop": {
+      "command": "python",
+      "args": ["d:/项目管理/MCP Server/geo-mcp-server/server.py"]
+    },
+    "claude_code": {
+      "command": "python",
+      "args": ["d:/项目管理/MCP Server/geo-mcp-server/server.py"]
+    }
+  },
+  "tools": [
+    {"name": "geo_check_citation", "description": "检测品牌在AI引擎中的引用存在情况"},
+    {"name": "geo_content_score", "description": "对网页内容进行GEO评分(0-100分，5维度)"},
+    {"name": "geo_competitor_gap", "description": "对比品牌与竞品在AI引擎中的引用差距"},
+    {"name": "geo_brand_monitor", "description": "追踪品牌在AI生态中的引用变化趋势"},
+    {"name": "geo_brand_trend", "description": "查看品牌的历史引用趋势"},
+    {"name": "geo_ai_visibility", "description": "综合AI可见度报告(引用检测+内容GEO评分)"}
+  ],
+  "resources": [
+    {"uri": "geo://best-practices", "description": "GEO最佳实践指南(2026版)"},
+    {"uri": "geo://checklist", "description": "GEO优化检查清单"}
+  ],
+  "prompts": [
+    {"name": "geo_optimize", "description": "GEO内容优化分析框架"},
+    {"name": "geo_strategy", "description": "90天GEO提升策略规划"}
+  ]
+}
